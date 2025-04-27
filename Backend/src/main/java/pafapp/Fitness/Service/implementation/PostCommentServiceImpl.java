@@ -1,27 +1,22 @@
 package pafapp.Fitness.Service.implementation;
 
-import java.util.List;
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pafapp.Fitness.Model.Comment;
-import pafapp.Fitness.Model.Post;
+import pafapp.Fitness.Model.Comment; 
+import pafapp.Fitness.Model.Post;    
 import pafapp.Fitness.Service.PostCommentService;
-import pafapp.Fitness.repository.CommentRepository;
-import pafapp.Fitness.repository.PostRepository;
+import pafapp.Fitness.repository.CommentRepository; 
+import pafapp.Fitness.repository.PostRepository;    
+
+import java.util.Date;
+import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class PostCommentServiceImpl implements PostCommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-
-    @Autowired
-    public PostCommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository) {
-        this.commentRepository = commentRepository;
-        this.postRepository = postRepository;
-    }
 
     @Override
     public List<Comment> getCommentsForPost(Long postId) {
@@ -38,7 +33,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         comment.setCommentBy(commentBy);
         comment.setCommentById(commentById);
         comment.setCommentByProfile(commentByProfile);
-        comment.setCreatedAt(new Date());
+        comment.setCreatedAt((java.sql.Date) new Date());
         comment.setPost(post);
 
         return commentRepository.save(comment);
