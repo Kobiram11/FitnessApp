@@ -33,7 +33,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         comment.setCommentBy(commentBy);
         comment.setCommentById(commentById);
         comment.setCommentByProfile(commentByProfile);
-        comment.setCreatedAt((java.sql.Date) new Date());
+        comment.setCreatedAt(new Date());
         comment.setPost(post);
 
         return commentRepository.save(comment);
