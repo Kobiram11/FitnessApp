@@ -1,4 +1,15 @@
 package pafapp.Fitness.Service.implementation;
+import lombok.AllArgsConstructor;
+import pafapp.Fitness.Dto.PostDto;
+import pafapp.Fitness.Model.Post;
+import pafapp.Fitness.Service.PostCommentService;
+import pafapp.Fitness.repository.PostRepository;
+
+import pafapp.Fitness.Service.PostService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,26 +18,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import pafapp.Fitness.Dto.PostDto;
-import pafapp.Fitness.Model.Post;
-import pafapp.Fitness.Service.PostCommentService;
-import pafapp.Fitness.Service.PostService;
-import pafapp.Fitness.repository.PostRepository;
-
 @Service
+@AllArgsConstructor
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final PostCommentService commentService;
-
-    public PostServiceImpl(PostRepository postRepository, PostCommentService commentService) {
-        this.postRepository = postRepository;
-        this.commentService = commentService;
-    }
 
     @Override
     public List<Post> getAllPosts() {
@@ -102,12 +99,8 @@ public class PostServiceImpl implements PostService {
             postRepository.save(post);
             return new ResponseEntity<>(post, HttpStatus.OK);
 
-        } catch (NumberFormatException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST); // invalid postId string
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // post not found
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
