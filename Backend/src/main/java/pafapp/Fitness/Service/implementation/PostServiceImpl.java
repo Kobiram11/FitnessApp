@@ -13,17 +13,17 @@ import org.springframework.stereotype.Service;
 
 import pafapp.Fitness.Dto.PostDto;
 import pafapp.Fitness.Model.Post;
+import pafapp.Fitness.Service.PostCommentService;
 import pafapp.Fitness.Service.PostService;
-import pafapp.Fitness.Service.CommentService; // <-- Important: import your CommentService interface
 import pafapp.Fitness.repository.PostRepository;
 
 @Service
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final CommentService commentService;
+    private final PostCommentService commentService;
 
-    public PostServiceImpl(PostRepository postRepository, CommentService commentService) {
+    public PostServiceImpl(PostRepository postRepository, PostCommentService commentService) {
         this.postRepository = postRepository;
         this.commentService = commentService;
     }
@@ -82,7 +82,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public ResponseEntity<Post> likePost(String postIdStr, String userId) {
+    public ResponseEntity<Object> likePost(String postIdStr, String userId) {
         try {
             Long postId = Long.parseLong(postIdStr);
             Post post = postRepository.findById(postId)
