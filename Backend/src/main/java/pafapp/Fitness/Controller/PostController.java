@@ -36,14 +36,14 @@ public class PostController {
 
     // Create a new post
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post) {
-        Post savedPost = postService.createPost(post);
+    public ResponseEntity<Post> createPost(@RequestBody PostDto postDto) {
+        Post savedPost = postService.createPost(postDto);
         return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     }
-
     // Update a post
-    @PutMapping
-    public ResponseEntity<Post> updatePost(@RequestBody PostDto postDto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable Long id, @RequestBody PostDto postDto) {
+        postDto.setId(id); // Set ID manually since it's coming from the path
         return postService.editPost(postDto);
     }
 

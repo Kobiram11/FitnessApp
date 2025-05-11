@@ -1,4 +1,5 @@
 package pafapp.Fitness.Model;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,20 +29,29 @@ public class Post {
 
     private String userId;
     private String username;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String userProfile;
 
     private String title;
     private String description;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    private List<String> images = new ArrayList<>();
+    @CollectionTable(name = "post_images", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "images", columnDefinition = "TEXT")
+    private List<String> images;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String video;
 
     @CreatedDate
     private LocalDateTime date;
 
     private int likeCount;
+
+    private int commentsCount; // ✅ ADD THIS FIELD
 
     @ElementCollection(fetch = FetchType.LAZY)
     private List<String> likedBy = new ArrayList<>();
@@ -53,6 +63,7 @@ public class Post {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<String> sharedBy = new ArrayList<>();
 
+    // 👍 Utility methods
     public void addLikedBy(String userId) {
         likedBy.add(userId);
         likeCount = likedBy.size();

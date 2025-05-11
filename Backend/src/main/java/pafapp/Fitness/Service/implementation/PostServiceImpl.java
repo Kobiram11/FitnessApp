@@ -1,10 +1,10 @@
 package pafapp.Fitness.Service.implementation;
+
 import lombok.AllArgsConstructor;
 import pafapp.Fitness.Dto.PostDto;
 import pafapp.Fitness.Model.Post;
 import pafapp.Fitness.Service.PostCommentService;
 import pafapp.Fitness.repository.PostRepository;
-
 import pafapp.Fitness.Service.PostService;
 
 import org.springframework.http.HttpStatus;
@@ -12,11 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -41,15 +37,39 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post createPost(Post post) {
+    public Post createPost(PostDto dto) {
+        // 🔒 Validate: only one media type allowed
+        boolean hasImages = dto.getImages() != null && !dto.getImages().isEmpty();
+        boolean hasVideo = dto.getVideo() != null && !dto.getVideo().trim().isEmpty();
+
+        if (hasImages && hasVideo) {
+            throw new IllegalArgumentException("Only one media type (image or video) is allowed.");
+        }
+
+        if (!hasImages && !hasVideo) {
+            throw new IllegalArgumentException("You must upload either an image or a video.");
+        }
+
+        Post post = new Post();
+        post.setUserId(dto.getUserId());
+        post.setUsername(dto.getUsername());
+        post.setUserProfile(dto.getUserProfile());
+        post.setTitle(dto.getTitle());
+        post.setDescription(dto.getDescription());
         post.setDate(LocalDateTime.now());
         post.setLikeCount(0);
-        if (post.getLikedBy() == null) {
-            post.setLikedBy(new ArrayList<>());
+        post.setCommentsCount(0);
+        post.setLikedBy(new ArrayList<>());
+        post.setSharedBy(new ArrayList<>());
+
+        if (hasImages) {
+            post.setImages(dto.getImages());
+            post.setVideo(null);
+        } else {
+            post.setImages(new ArrayList<>());
+            post.setVideo(dto.getVideo());
         }
-        if (post.getSharedBy() == null) {
-            post.setSharedBy(new ArrayList<>());
-        }
+
         return postRepository.save(post);
     }
 
@@ -60,14 +80,34 @@ public class PostServiceImpl implements PostService {
 
         try {
             post.setTitle(postDTO.getTitle());
-            post.setImages(postDTO.getImages() != null ? postDTO.getImages() : Collections.emptyList());
             post.setDescription(postDTO.getDescription());
             post.setDate(LocalDateTime.now());
-            post.setVideo(postDTO.getVideo());
-            postRepository.save(post);
 
+            // Only allow one media type in updates too
+            boolean hasImages = postDTO.getImages() != null && !postDTO.getImages().isEmpty();
+            boolean hasVideo = postDTO.getVideo() != null && !postDTO.getVideo().trim().isEmpty();
+
+            if (hasImages && hasVideo) {
+                throw new IllegalArgumentException("Only one media type (image or video) is allowed.");
+            }
+
+            if (!hasImages && !hasVideo) {
+                throw new IllegalArgumentException("You must provide at least one media type.");
+            }
+
+            if (hasImages) {
+                post.setImages(postDTO.getImages());
+                post.setVideo(null);
+            } else {
+                post.setImages(new ArrayList<>());
+                post.setVideo(postDTO.getVideo());
+            }
+
+            postRepository.save(post);
             return new ResponseEntity<>(post, HttpStatus.OK);
 
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -96,6 +136,7 @@ public class PostServiceImpl implements PostService {
                 post.addLikedBy(userId);
                 post.setLikeCount(post.getLikeCount() + 1);
             }
+
             postRepository.save(post);
             return new ResponseEntity<>(post, HttpStatus.OK);
 

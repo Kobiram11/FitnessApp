@@ -7,8 +7,9 @@ import pafapp.Fitness.Service.PostCommentService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 
@@ -27,21 +28,36 @@ public class CommentController {
     }
 
     // POST: Add a comment to a post
-    @PostMapping
-    public ResponseEntity<Comment> addCommentToPost(
-            @PathVariable Long postId,
-            @RequestBody CommentDto request
-    ) {
+@PostMapping
+public ResponseEntity<Comment> addCommentToPost(
+        @PathVariable Long postId,
+        @RequestBody CommentDto request
+) {
+    try {
+        System.out.println("➡️ Received comment POST request:");
+        System.out.println("Content: " + request.getContent());
+        System.out.println("By: " + request.getCommentBy());
+        System.out.println("User ID: " + request.getCommentById());
+        System.out.println("Profile: " + (request.getCommentByProfile() != null ? "Provided" : "null"));
+
+        // ✅ Fallback in case profile is null (prevent DB errors)
+        String safeProfile = request.getCommentByProfile() != null ? request.getCommentByProfile() : "";
+
         Comment comment = commentService.addCommentToPost(
                 postId,
                 request.getContent(),
                 request.getCommentBy(),
                 request.getCommentById(),
-                request.getCommentByProfile()
+                safeProfile
         );
         return new ResponseEntity<>(comment, HttpStatus.CREATED);
-    }
 
+    } catch (Exception e) {
+        System.out.println("❌ Error during comment save:");
+        e.printStackTrace();
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
     // DELETE: Remove a comment from a post
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(

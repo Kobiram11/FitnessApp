@@ -1,6 +1,5 @@
 package pafapp.Fitness.Service;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +14,8 @@ public interface PostService {
 
     Optional<Post> getPostById(Long id);
 
-    Post createPost(Post post);
+    // ✅ Updated to use PostDto
+    Post createPost(PostDto dto);
 
     ResponseEntity<Post> editPost(PostDto postDTO);
 

@@ -2,11 +2,12 @@ package pafapp.Fitness.Service.implementation;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pafapp.Fitness.Model.Comment; 
-import pafapp.Fitness.Model.Post;    
+import pafapp.Fitness.Model.Comment;
+import pafapp.Fitness.Model.Post;
 import pafapp.Fitness.Service.PostCommentService;
-import pafapp.Fitness.repository.CommentRepository; 
-import pafapp.Fitness.repository.PostRepository;    
+import pafapp.Fitness.repository.CommentRepository;
+import pafapp.Fitness.repository.PostRepository;
+import pafapp.Fitness.Service.NotificationService;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     @Override
     public List<Comment> getCommentsForPost(Long postId) {
@@ -32,9 +34,19 @@ public class PostCommentServiceImpl implements PostCommentService {
         comment.setContent(content);
         comment.setCommentBy(commentBy);
         comment.setCommentById(commentById);
-        comment.setCommentByProfile(commentByProfile);
+        comment.setCommentByProfile(commentByProfile != null ? commentByProfile : "");
         comment.setCreatedAt(new Date());
         comment.setPost(post);
+
+        // ✅ Notify only if the commenter is NOT the post owner
+        if (post.getUserId() != null && !post.getUserId().equals(commentById)) {
+            System.out.println("✅ Sending notification to post owner: " + post.getUserId());
+            notificationService.sendCommentNotification(
+                    post.getUserId(), // ✅ Correct: notify post owner
+                    postId.toString(),
+                    content
+            );
+        }
 
         return commentRepository.save(comment);
     }

@@ -9,5 +9,6 @@ import pafapp.Fitness.Model.Post;
 public interface PostRepository extends JpaRepository <Post, Long> {
 
     List<Post> findByUserId(String userId);
+    int countByUserId(String userId);
     
 }

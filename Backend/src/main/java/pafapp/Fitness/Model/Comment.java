@@ -28,7 +28,11 @@ public class Comment {
     private String content;
 
     private String commentBy;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String commentByProfile;
+
     private String commentById;
 
     @CreatedDate

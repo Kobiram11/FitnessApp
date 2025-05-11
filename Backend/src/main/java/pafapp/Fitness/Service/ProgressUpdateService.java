@@ -14,4 +14,5 @@ public interface ProgressUpdateService {
     ProgressUpdateDto updateProgressUpdate(Long id, ProgressUpdateDto progressUpdateDto);
 
     void deleteProgressUpdate(Long id);
+    List<ProgressUpdateDto> getProgressUpdatesByUserId(String userId);
 }

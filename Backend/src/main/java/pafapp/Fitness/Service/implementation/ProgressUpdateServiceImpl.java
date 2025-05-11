@@ -83,4 +83,10 @@ public class ProgressUpdateServiceImpl implements ProgressUpdateService {
         entity.setUpdatedAt(dto.getUpdatedAt() != null ? dto.getUpdatedAt() : Instant.now());
         return entity;
     }
+
+        @Override
+    public List<ProgressUpdateDto> getProgressUpdatesByUserId(String userId) {
+        List<ProgressUpdate> updates = progressUpdateRepository.findByUserId(userId);
+        return updates.stream().map(this::mapToDto).collect(Collectors.toList());
+}
 }
